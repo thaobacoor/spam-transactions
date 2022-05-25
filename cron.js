@@ -60,7 +60,7 @@ const sendWPT = new CronJob('*/1 * * * *', async () => {
     const amountInWei = web3.utils.toWei(amount.toString(), "ether");
     const amountToken = 0.1;
     const amountTokenInWei = web3.utils.toWei(amountToken.toString(), "ether");
-    const dataTx = contract.methods.distributeSingle(accounts[i], amountInWei, tokens, amountTokenInWei).encodeABI();
+    const dataTx = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokens, amountTokenInWei).encodeABI();
     await baseTx(ownerAddress, ownerPrivateKey, dataTx, amount);
     i++;
     if (i == length) i = 0;
