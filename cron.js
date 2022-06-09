@@ -5,14 +5,16 @@ const CronJob = require('cron').CronJob;
 const accounts = require("./accounts1.json");
 const ABI = require("./ABI/MultiTransfer.json");
 
-const contractAddress = '0x1e60Fa3ed2618D21756C0fB2C1A1abCE1e05e984';
-const contract = new web3.eth.Contract(ABI, contractAddress);
+const contractAddressMainnet = '0x1e60Fa3ed2618D21756C0fB2C1A1abCE1e05e984';
+const contractAddressTestnet = '0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240';
+const contract = new web3.eth.Contract(ABI, contractAddressMainnet);
 
 const ownerAddress = "0x51c5D59764aF4F39c50980C64130D7224ab2d1c2";
 const ownerPrivateKey = "a96783827b917ea239c9d78797bf27e094ee7bdca40f54ad11f194388fa37d24";
-const tokens = ["0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240"];
+const tokensMainnet = ["0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240"];
+const tokensTestnet = ["0xF7B4F33c81E514F90EA8e1C9f6c3e47BbB8235CF"];
 
-const baseTx = async (account, privateKey, dataTx, value) => {
+const baseTx = async (account, privateKey, contractAddress, dataTx, value) => {
   try {
     const nonce = await web3.eth.getTransactionCount(account);
     const gasPrice = await web3.eth.getGasPrice();
@@ -60,8 +62,10 @@ const sendWPT = new CronJob('*/1 * * * *', async () => {
     const amountInWei = web3.utils.toWei(amount.toString(), "ether");
     const amountToken = 0.1;
     const amountTokenInWei = web3.utils.toWei(amountToken.toString(), "ether");
-    const dataTx = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokens, amountTokenInWei).encodeABI();
-    await baseTx(ownerAddress, ownerPrivateKey, dataTx, amount);
+    const dataTxMainnet = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
+    await baseTx(ownerAddress, ownerPrivateKey, contractAddressMainnet, dataTxMainnet, amount);
+    const dataTxTestnet = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
+    await baseTx(ownerAddress, ownerPrivateKey, contractAddressTestnet, dataTxTestnet, amount);
     i++;
     if (i == length) i = 0;
   } catch (error) {
