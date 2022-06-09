@@ -60,9 +60,9 @@ const length = accounts.length;
 const sendWPT = new CronJob('*/1 * * * *', async () => {
   try {
     const amount = 1; 
-    const amountInWei = web3.utils.toWei(amount.toString(), "ether");
+    const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
     const amountToken = 0.1;
-    const amountTokenInWei = web3.utils.toWei(amountToken.toString(), "ether");
+    const amountTokenInWei = web3M.utils.toWei(amountToken.toString(), "ether");
     const dataTxMainnet = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
     await baseTx(ownerAddress, ownerPrivateKey, web3M, contractAddressMainnet, dataTxMainnet, amount);
     const dataTxTestnet = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
