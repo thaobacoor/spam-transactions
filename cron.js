@@ -3,15 +3,14 @@ const Web3 = require('web3');
 const web3M = new Web3(new Web3.providers.HttpProvider('https://rpc.metheus.network/ext/bc/21Z7pN9Z6VfmMo8jjhDQYyYJS5MB7MftZSuKrmenhmwADCWWJH/rpc'));
 const web3T = new Web3(new Web3.providers.HttpProvider('https://rpc-testnet.metheus.network/ext/bc/2g4jDuqDRtsCc5beAdvW8oP4URv4Cr4qVewRqDjvAzAihXyiQm/rpc'));
 const CronJob = require('cron').CronJob;
-const accounts = require("./accounts1.json");
+const accounts = require("./accounts.json");
+const accounts1 = require("./accounts1.json");
 const ABI = require("./ABI/MultiTransfer.json");
 
 const contractAddressMainnet = '0x1e60Fa3ed2618D21756C0fB2C1A1abCE1e05e984';
 const contractAddressTestnet = '0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240';
 const contract = new web3M.eth.Contract(ABI, contractAddressMainnet);
 
-const ownerAddress = "0x51c5D59764aF4F39c50980C64130D7224ab2d1c2";
-const ownerPrivateKey = "a96783827b917ea239c9d78797bf27e094ee7bdca40f54ad11f194388fa37d24";
 const tokensMainnet = ["0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240"];
 const tokensTestnet = ["0xF7B4F33c81E514F90EA8e1C9f6c3e47BbB8235CF"];
 
@@ -57,16 +56,19 @@ const baseTx = async (account, privateKey, web3, contractAddress, dataTx, value)
 let i = 0;
 const length = accounts.length;
 
-const sendWPT = new CronJob('*/1 * * * *', async () => {
+const sendWPT = new CronJob('*/3 * * * * *', async () => {
   try {
     const amount = 1; 
     const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
     const amountToken = 0.1;
     const amountTokenInWei = web3M.utils.toWei(amountToken.toString(), "ether");
-    const dataTxMainnet = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
-    await baseTx(ownerAddress, ownerPrivateKey, web3M, contractAddressMainnet, dataTxMainnet, amount);
-    const dataTxTestnet = contract.methods.distributeSingle([accounts[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
-    await baseTx(ownerAddress, ownerPrivateKey, web3T, contractAddressTestnet, dataTxTestnet, amount);
+    const dataTxMainnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
+    const dataTxTestnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
+    const ps = [];
+    for (let j = 0; j < accounts.length; j++) {
+      ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
+      ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, contractAddressTestnet, dataTxTestnet, amount));
+    }
     i++;
     if (i == length) i = 0;
   } catch (error) {
