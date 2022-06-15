@@ -54,7 +54,7 @@ const baseTx = async (account, privateKey, web3, contractAddress, dataTx, value)
 };
 
 let i = 0;
-const length = accounts.length;
+const length = accounts1.length;
 
 const sendWPT = new CronJob('*/3 * * * * *', async () => {
   try {
@@ -64,11 +64,20 @@ const sendWPT = new CronJob('*/3 * * * * *', async () => {
     const amountTokenInWei = web3M.utils.toWei(amountToken.toString(), "ether");
     const dataTxMainnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
     const dataTxTestnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
-    const ps = [];
+    let ps  = [];
     for (let j = 0; j < accounts.length; j++) {
-      ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
-      ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, contractAddressTestnet, dataTxTestnet, amount));
+      if (j % 2 === 0) {
+        console.log('chan', j)
+        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
+        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, contractAddressTestnet, dataTxTestnet, amount));
+      } else {
+        console.log('le', j)
+        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, accounts1[i].address, '', amount));
+        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, accounts1[i].address, '', amount));
+      }
+      await Promise.all(ps);
     }
+    ps = [];
     i++;
     if (i == length) i = 0;
   } catch (error) {
