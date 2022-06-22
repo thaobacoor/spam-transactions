@@ -66,7 +66,7 @@ const sendWPT2 = async () => {
         await Promise.all(ps);
         ps = [];
       }
-      if (j === length) j = -1;
+      if (j === length - 1) j = -1;
     }
   } catch (error) {
     console.log('error', error)
