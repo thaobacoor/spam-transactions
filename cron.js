@@ -56,38 +56,56 @@ const baseTx = async (account, privateKey, web3, contractAddress, dataTx, value)
 let i = 0;
 const length = accounts1.length;
 
-const sendWPT = new CronJob('*/3 * * * * *', async () => {
+const sendWPT2 = async () => {
   try {
-    const amount = 1; 
-    const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
-    const amountToken = 0.1;
-    const amountTokenInWei = web3M.utils.toWei(amountToken.toString(), "ether");
-    const dataTxMainnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
-    const dataTxTestnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
     let ps  = [];
-    for (let j = 0; j < accounts.length; j++) {
-      if (j % 2 === 0) {
-        console.log('chan', j)
-        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
-        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, contractAddressTestnet, dataTxTestnet, amount));
-      } else {
-        console.log('le', j)
-        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, accounts1[i].address, '', amount));
-        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, accounts1[i].address, '', amount));
+    for (let j = 0; j < length; j++) {
+      let amount = Math.random(); 
+      ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
+      if (j % 5 === 0) {
+        await Promise.all(ps);
+        ps = [];
       }
-      await Promise.all(ps);
+      if (j === length) j = -1;
     }
-    ps = [];
-    i++;
-    if (i == length) i = 0;
   } catch (error) {
     console.log('error', error)
   }
-}, null, false, process.env.TIME_ZONE);
+};
+
+// const sendWPT = new CronJob('*/3 * * * * *', async () => {
+//   try {
+//     const amount = 1; 
+//     const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
+//     const amountToken = 0.1;
+//     const amountTokenInWei = web3M.utils.toWei(amountToken.toString(), "ether");
+//     const dataTxMainnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
+//     const dataTxTestnet = contract.methods.distributeSingle([accounts1[i].address], amountInWei, tokensTestnet, amountTokenInWei).encodeABI();
+//     let ps  = [];
+//     for (let j = 0; j < accounts.length; j++) {
+//       if (j % 2 === 0) {
+//         console.log('chan', j)
+//         ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
+//         ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, contractAddressTestnet, dataTxTestnet, amount));
+//       } else {
+//         console.log('le', j)
+//         ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, accounts1[i].address, '', amount));
+//         ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3T, accounts1[i].address, '', amount));
+//       }
+//       await Promise.all(ps);
+//     }
+//     ps = [];
+//     i++;
+//     if (i == length) i = 0;
+//   } catch (error) {
+//     console.log('error', error)
+//   }
+// }, null, false, process.env.TIME_ZONE);
 
 module.exports = {
 	fetch: () => {
-		sendWPT.start();
+		// sendWPT.start();
+    sendWPT2();
 	}
 };
 
