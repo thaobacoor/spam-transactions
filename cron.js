@@ -53,7 +53,6 @@ const baseTx = async (account, privateKey, web3, contractAddress, dataTx, value)
   }
 };
 
-let i = 0;
 const length = accounts1.length;
 
 const sendWPT2 = async () => {
@@ -69,7 +68,7 @@ const sendWPT2 = async () => {
         const dataTxMainnet = contract.methods.distributeSingle(accounts1[length - 1 - j].address, amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
         ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
       }
-      if (j % 5 === 0) {
+      if ((j + 1) % 5 === 0) {
         await Promise.all(ps);
         ps = [];
       }
