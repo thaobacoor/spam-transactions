@@ -117,7 +117,7 @@ const sendWPT2 = async () => {
       if (amount > 0.3) {
         ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
       } else {
-        const amoutToken = amount/10;
+        const amoutToken = (amount/10).toFixed(3);
         const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
         const amountTokenInWei = web3M.utils.toWei(amoutToken.toString(), "ether");
         const dataTxMainnet = contract.methods.distributeSingle([accounts1[length - 1 - j].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
