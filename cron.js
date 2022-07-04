@@ -114,7 +114,7 @@ const sendWPT2 = async () => {
     let ps  = [];
     for (let j = 0; j < length; j++) {
       ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
-      let amount = (Math.random()).toFixed(3); 
+      let amount = (Math.random()); 
       // if (amount > 0.3) {
         
       // } else {
