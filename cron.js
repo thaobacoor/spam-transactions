@@ -113,16 +113,17 @@ const sendWPT2 = async () => {
   try {
     let ps  = [];
     for (let j = 0; j < length; j++) {
+      ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
       let amount = (Math.random()).toFixed(3); 
-      if (amount > 0.3) {
-        ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
-      } else {
-        const amoutToken = (amount/10);
-        const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
-        const amountTokenInWei = web3M.utils.toWei(amoutToken.toString(), "ether");
-        const dataTxMainnet = contract.methods.distributeSingle([accounts1[length - 1 - j].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
-        ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
-      }
+      // if (amount > 0.3) {
+        
+      // } else {
+      //   const amoutToken = (amount/10);
+      //   const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
+      //   const amountTokenInWei = web3M.utils.toWei(amoutToken.toString(), "ether");
+      //   const dataTxMainnet = contract.methods.distributeSingle([accounts1[length - 1 - j].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
+      //   ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
+      // }
       if ((j + 1) % 5 === 0) {
         await Promise.all(ps);
         ps = [];
