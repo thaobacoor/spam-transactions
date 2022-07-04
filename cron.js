@@ -94,7 +94,6 @@ const baseTx = async (account, privateKey, web3, contractAddress, dataTx, value)
     rawTransaction.gasLimit = gasLimitHex;
 
     const signedTransaction = await web3.eth.accounts.signTransaction(rawTransaction, privateKey);
-    console.log(signedTransaction)
     return web3.eth
       .sendSignedTransaction(signedTransaction.rawTransaction)
       .on("receipt", ({ transactionHash }) => {
@@ -120,7 +119,7 @@ const sendWPT2 = async () => {
       } else {
         const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
         const amountTokenInWei = web3M.utils.toWei((amount/10).toString(), "ether");
-        const dataTxMainnet = contract.methods.distributeSingle(accounts1[length - 1 - j].address, amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
+        const dataTxMainnet = contract.methods.distributeSingle([accounts1[length - 1 - j].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
         ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
       }
       if ((j + 1) % 5 === 0) {
