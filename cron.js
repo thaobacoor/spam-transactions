@@ -121,7 +121,7 @@ const sendWPT2 = async () => {
         const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
         const amountTokenInWei = web3M.utils.toWei(amoutToken.toString(), "ether");
         const dataTxMainnet = contract.methods.distributeSingle([accounts1[length - 1 - j].address], amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
-        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
+        ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
       }
       if ((j + 1) % 5 === 0) {
         await Promise.all(ps);
