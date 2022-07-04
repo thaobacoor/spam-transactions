@@ -6,6 +6,7 @@ const CronJob = require('cron').CronJob;
 const accounts = require("./accounts.json");
 const accounts1 = require("./accounts1.json");
 const ABI = require("./ABI/MultiTransfer.json");
+const ERC20ABI = require("./ABI/ERC20.json");
 
 const contractAddressMainnet = '0x1e60Fa3ed2618D21756C0fB2C1A1abCE1e05e984';
 const contractAddressTestnet = '0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240';
@@ -13,6 +14,60 @@ const contract = new web3M.eth.Contract(ABI, contractAddressMainnet);
 
 const tokensMainnet = ["0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240"];
 const tokensTestnet = ["0xF7B4F33c81E514F90EA8e1C9f6c3e47BbB8235CF"];
+
+const MaxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+
+const defaultWei = 10000000000; // default 5 GWei
+const gasPrice = defaultWei * 1.5;
+
+const approveToken = async (account, privateKey) => {
+  try {
+    const tokenContract = new web3M.eth.Contract(ERC20ABI, '0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240');
+    const dataTx = tokenContract.methods.approve(contractAddressMainnet, MaxUint256).encodeABI();
+    const nonce = await web3M.eth.getTransactionCount(account);
+    
+    const rawTransaction = {
+      nonce: web3M.utils.toHex(nonce),
+      from: account,
+      to: '0x84C4Cdfafcc6E7f87896B606a6e737d762cD2240',
+      data: dataTx,
+      gasPrice: web3M.utils.toHex(gasPrice),
+    };
+
+    const gasLimit = await web3M.eth.estimateGas(rawTransaction);
+    const gasLimitHex = web3M.utils.toHex(gasLimit);
+    rawTransaction.gasLimit = gasLimitHex;
+    
+    const signedTransaction= await web3M.eth.accounts.signTransaction(rawTransaction, privateKey);
+    
+    return web3M.eth
+      .sendSignedTransaction(signedTransaction.rawTransaction)
+      .on('receipt', ({ transactionHash }) => {
+        console.log(`${process.env.EXPLORER}/tx/${transactionHash}`);
+      })
+      .catch((err) => {
+        console.log('error1', err);
+      });
+  } catch (err) {
+    console.log('error2', err);
+  }
+};
+
+const approves = async() => {
+  try {
+    let ps  = [];
+    for (let j = 0; j < length; j++) {
+      ps.push(approveToken(accounts1[j].address, accounts1[j].privateKey));
+      if ((j + 1) % 50 === 0) {
+        await Promise.all(ps);
+        ps = [];
+      }
+    }
+  } catch (error) {
+    console.log('error', error)
+  }
+  console.log('completed!');
+}
 
 const baseTx = async (account, privateKey, web3, contractAddress, dataTx, value) => {
   try {
@@ -60,15 +115,14 @@ const sendWPT2 = async () => {
     let ps  = [];
     for (let j = 0; j < length; j++) {
       let amount = Math.random(); 
-      ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
-      // if (amount > 0.5) {
-        
-      // } else {
-      //   const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
-      //   const amountTokenInWei = web3M.utils.toWei(amount.toString(), "ether");
-      //   const dataTxMainnet = contract.methods.distributeSingle(accounts1[length - 1 - j].address, amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
-      //   ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
-      // }
+      if (amount > 0.5) {
+        ps.push(baseTx(accounts1[j].address, accounts1[j].privateKey, web3M, accounts1[length - 1 - j].address, '', amount));
+      } else {
+        const amountInWei = web3M.utils.toWei(amount.toString(), "ether");
+        const amountTokenInWei = web3M.utils.toWei(amount.toString(), "ether");
+        const dataTxMainnet = contract.methods.distributeSingle(accounts1[length - 1 - j].address, amountInWei, tokensMainnet, amountTokenInWei).encodeABI();
+        ps.push(baseTx(accounts[j].address, accounts[j].privateKey, web3M, contractAddressMainnet, dataTxMainnet, amount));
+      }
       if ((j + 1) % 5 === 0) {
         await Promise.all(ps);
         ps = [];
@@ -113,6 +167,7 @@ module.exports = {
 	fetch: () => {
 		// sendWPT.start();
     sendWPT2();
+    // approves()
 	}
 };
 
