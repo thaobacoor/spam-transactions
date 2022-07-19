@@ -133,6 +133,7 @@ const sendWPT2 = async () => {
     }
   } catch (error) {
     console.log('error', error)
+    sendWPT2();
   }
 };
 
